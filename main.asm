@@ -18,17 +18,8 @@ main:
 #Carga el contador de turnos
 li $s3, 0
 
-#Carga inicial de las direcciones de memoria de los arrays
-la $a1, firstRow
-la $a2, secondRow
-la $a3, thirdRow
-
+#Carga la direccion de memoria del array de punteros
 la $t8, pointersArray
-
-#Inicializacion de constantes que representan cada array
-li $t3, 3
-li $t6, 6
-li $t9, 9
 
 #Multiplo de las direcciones en los numeros enteros
 li $t4, 4
@@ -65,11 +56,14 @@ move $t0, $v0
 
 #Se obtiene el valor de la posicion seleccionada
 findArrayPosition:
+li $t3, 3
 ble $t0, $t3, setFila1
 
-ble $t0, $t6, setFila2
+addi $t3, $t3, 3
+ble $t0, $t3, setFila2
 
-ble $t0, $t9, setFila3
+addi $t3, $t3, 3
+ble $t0, $t3, setFila3
 
 #Si la posicion ingresada no corresponde a una existente, se solicita nuevamente
 j player1Move
@@ -77,7 +71,12 @@ j player1Move
 setFila1:
 addi $t0, $t0, -1
 
-move $t1, $a1
+la $t8, pointersArray
+
+#Asigna a $t6, la direccion de memoria del array 1
+lw $t6, 0($t8)
+
+move $t1, $t6
 
 #Se guarda en $a0, la posicion de memoria a la que se tiene que ir
 mul $s0, $t0, $t4
@@ -89,7 +88,12 @@ j checkEmpty
 setFila2:
 addi $t0, $t0, -4
 
-move $t1, $a2
+la $t8, pointersArray
+
+#Asigna a $t6, la direccion de memoria del array 2
+lw $t6, 4($t8)
+
+move $t1, $t6
 
 #Se guarda en $a0, la posicion de memoria a la que se tiene que ir
 mul $s0, $t0, $t4
@@ -101,7 +105,12 @@ j checkEmpty
 setFila3:
 addi $t0, $t0, -7
 
-move $t1, $a3
+la $t8, pointersArray
+
+#Asigna a $t6, la direccion de memoria del array 3
+lw $t6, 8($t8)
+
+move $t1, $t6
 
 #Se guarda en $a0, la posicion de memoria a la que se tiene que ir
 mul $s0, $t0, $t4
@@ -143,11 +152,14 @@ move $t0, $v0
 
 #Se obtiene el valor de la posicion seleccionada
 findArrayPosition2:
+li $t3, 3
 ble $t0, $t3, setFila12
 
-ble $t0, $t6, setFila22
+addi $t3, $t3, 3
+ble $t0, $t3, setFila22
 
-ble $t0, $t9, setFila32
+addi $t3, $t3, 3
+ble $t0, $t3, setFila32
 
 #Si la posicion ingresada no corresponde a una existente, se solicita nuevamente
 j player2Move
@@ -155,7 +167,11 @@ j player2Move
 setFila12:
 addi $t0, $t0, -1
 
-move $t1, $a1
+la $t8, pointersArray
+
+lw $t6, 0($t8)
+
+move $t1, $t6
 
 #Se guarda en $a0, la posicion de memoria a la que se tiene que ir
 mul $s0, $t0, $t4
@@ -167,7 +183,11 @@ j checkEmpty2
 setFila22:
 addi $t0, $t0, -4
 
-move $t1, $a2
+la $t8, pointersArray
+
+lw $t6, 4($t8)
+
+move $t1, $t6
 
 #Se guarda en $a0, la posicion de memoria a la que se tiene que ir
 mul $s0, $t0, $t4
@@ -179,7 +199,11 @@ j checkEmpty2
 setFila32:
 addi $t0, $t0, -7
 
-move $t1, $a3
+la $t8, pointersArray
+
+lw $t6, 8($t8)
+
+move $t1, $t6
 
 #Se guarda en $a0, la posicion de memoria a la que se tiene que ir
 mul $s0, $t0, $t4
