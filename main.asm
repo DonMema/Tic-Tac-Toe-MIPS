@@ -1,4 +1,3 @@
-.data
 firstRow: .word 0, 0, 0
 secondRow: .word 0, 0, 0
 thirdRow: .word 0, 0, 0
@@ -17,13 +16,13 @@ pointersArray: .word firstRow, secondRow, thirdRow
 .text
 main:
     # Inicializar contador de turnos
-    li $s3, 0  # Turnos totales
-    li $s6, 1  # Jugador O
-    li $s7, 2  # Jugador X
+    li $s3, 0 # Turnos totales
+    li $s6, 1 # Jugador O
+    li $s7, 2 # Jugador X
 
     # Cargar array de punteros
     la $t8, pointersArray
-    li $t4, 4  # Multiplicador de direcciones
+    li $t4, 4 # Multiplicador de direcciones
 
     # Mostrar instrucciones y tablero inicial
     li $v0, 4
@@ -33,7 +32,79 @@ main:
     li $v0, 4
     la $a0, grid
     syscall
+     jal showGrid
+     syscall
 
+showGrid:
+li $t1, 0x00FF00
+lui $t0, 0x1001
+li $t5, 1024
+li $t6, 80
+mult $t5, $t6
+mflo $t6
+add $t0, $t0, $t6
+addi $t0, $t0, 56
+li $t2, 0
+firstLine:
+sw $t1, 0($t0)
+addi $t0, $t0, 4
+# INCREMENTA CONTADOR
+addi $t2, $t2, 1
+bne $t2, 224, firstLine
+nop
+lui $t0, 0x1001
+li $t5, 1024
+li $t6, 150
+mult $t5, $t6
+mflo $t6
+
+#VERTICAL
+add $t0, $t0, $t6
+#Horizontal
+addi $t0, $t0, 56
+li $t2, 0
+secondLine:
+sw $t1, 0($t0)
+addi $t0, $t0, 4
+addi $t2, $t2, 1
+bne $t2, 224, secondLine
+nop
+# Lineas Verticales
+lui $t0, 0x1001
+li $t6, 10
+mult $t5, $t6
+mflo $t6
+#VERTICAL
+add $t0, $t0, $t6
+#HORIZONTAL
+addi $t0, $t0, 320
+li $t2, 0
+FirstLineV:
+addi $t0, $t0, 1024
+sw $t1, 0($t0)
+addi $t2, $t2, 1
+bne $t2, 200, FirstLineV
+nop
+
+lui $t0, 0x1001
+#HORIZONTAL
+addi $t0, $t0, 660
+li $t2, 0
+#vertical
+li $t6, 10
+mult $t5, $t6
+mflo $t6
+add $t0, $t0, $t6
+SecondLineV:
+addi $t0, $t0, 1024
+sw $t1, 0($t0)
+addi $t2, $t2, 1
+bne $t2, 200,SecondLineV
+nop
+
+
+jr $ra
+nop
 turnLoop:
     addi $a3, $a3, 1
     # Determinar jugador actual
@@ -99,14 +170,14 @@ calculateOffset:
     bne $zero, $s1, playerInput
 
     # Marcar posición con el jugador actual
-    move $t1, $s6  # Jugador O
+    move $t1, $s6 # Jugador O
     beq $s3, $zero, markPosition
-    move $t1, $s7  # Jugador X
+    move $t1, $s7 # Jugador X
 
 markPosition:
     sw $t1, 0($s0)
     addi $s3, $s3, 1
-    rem $s3, $s3, 2  # Cambiar turno
+    rem $s3, $s3, 2 # Cambiar turno
 
     # Mostrar tablero
     j printGrid
@@ -140,7 +211,7 @@ printColumns:
     bgt $t5, $zero, printRows
 
     addi $a2, $a2, 1
-    
+   
     # Verificar condición de victoria o empate
     j checkWin
 
@@ -152,39 +223,39 @@ checkWin:
 checkCols:
     li $a1, 0
     li $a2, 3
-    
+   
     #Carga la primera columna
-    lw $t2, 0($t8) 
+    lw $t2, 0($t8)
     lw $t5, 4($t8)
     lw $t7, 8($t8)
     colsLoop:
-	lw $s1, 0($t2)
-    	beq $s1, $zero, skipCol
-    	
-    	lw $s4, 0($t5)
-    	beq $s4, $zero, skipCol
-    
-    	lw $s5, 0($t7)
-    	beq $s5, $zero, skipCol
-    
-    	#Verificamos que los elementos de la columna sean iguales
-    	beq $s1, $s4, colMatch
-    	
-    	#Salto en caso de que la columna contenga un 0
-    	skipCol:
-    	
-    	#Añade un 1 al contador (que llega a 3)
-    	addi $a1, $a1, 1
-    	
-    	#Avanzamos a la columa siguiente
-    	add $t2, $t2, $t9
-    	add $t5, $t5, $t9
-    	add $t7, $t7, $t9
-    	
-    	#Se establece una condición para volver al ciclo
-    	bne $a1, $a2, colsLoop
-    	
-    	j checkRows
+lw $s1, 0($t2)
+    beq $s1, $zero, skipCol
+   
+    lw $s4, 0($t5)
+    beq $s4, $zero, skipCol
+   
+    lw $s5, 0($t7)
+    beq $s5, $zero, skipCol
+   
+    #Verificamos que los elementos de la columna sean iguales
+    beq $s1, $s4, colMatch
+   
+    #Salto en caso de que la columna contenga un 0
+    skipCol:
+   
+    #Añade un 1 al contador (que llega a 3)
+    addi $a1, $a1, 1
+   
+    #Avanzamos a la columa siguiente
+    add $t2, $t2, $t9
+    add $t5, $t5, $t9
+    add $t7, $t7, $t9
+   
+    #Se establece una condición para volver al ciclo
+    bne $a1, $a2, colsLoop
+   
+    j checkRows
 
 colMatch:
     beq $s4, $s5, winCondition
@@ -197,31 +268,31 @@ checkRows:
     li $a1, 0
     li $a2, 3
     rowsLoop:
-    	lw $t2, 0($t8) #Carga el primer espacio de la fila 1
-    	lw $t5, 4($t2)
-    	beq $t5, $zero, skipRow
-    	lw $t7, 8($t2)
-    	beq $t7, $zero, skipRow
-    	lw $t2, 0($t2)
-    	beq $t2, $zero, skipRow
-    	
-    	move $t0, $t2
-    	
-    	#Verificamos en el primer espacio de la fila 1, sea igual al de la fila 2
-    	beq $t2, $t5, rowMatch
-    	
-    	#Salto en caso de que la columna contenga un 0
-    	skipRow:
-    	
-    	#Añade un 1 al contador (que llega a 3)
-    	addi $a1, $a1, 1
-    	#Avanzamos 4 espacios en la fila
-    	addi $t8, $t8, 4
-    	#Se establece una condición para volver al ciclo
-    	bne $a1, $a2, rowsLoop
-    	
-    	j checkDiag1
-    	
+    lw $t2, 0($t8) #Carga el primer espacio de la fila 1
+    lw $t5, 4($t2)
+    beq $t5, $zero, skipRow
+    lw $t7, 8($t2)
+    beq $t7, $zero, skipRow
+    lw $t2, 0($t2)
+    beq $t2, $zero, skipRow
+   
+    move $t0, $t2
+   
+    #Verificamos en el primer espacio de la fila 1, sea igual al de la fila 2
+    beq $t2, $t5, rowMatch
+   
+    #Salto en caso de que la columna contenga un 0
+    skipRow:
+   
+    #Añade un 1 al contador (que llega a 3)
+    addi $a1, $a1, 1
+    #Avanzamos 4 espacios en la fila
+    addi $t8, $t8, 4
+    #Se establece una condición para volver al ciclo
+    bne $a1, $a2, rowsLoop
+   
+    j checkDiag1
+   
 rowMatch:
     beq $t5, $t7, winCondition
     addi $a1, $a1, 1
@@ -230,11 +301,11 @@ rowMatch:
 
 checkDiag1:
     la $t8, pointersArray
-    
+   
     lw $t2, 0($t8)
     lw $t2, 0($t2)
     beq $t2, $zero, checkDiag2
-    
+   
     lw $t5, 4($t8)
     addi $t5, $t5, 4
     lw $t5, 0($t5)
@@ -244,12 +315,12 @@ checkDiag1:
     addi $t7, $t7, 8
     lw $t7, 0($t7)
     beq $t7, $zero, checkDiag2
-    
+   
     move $t0, $t2
-    
+   
     #Verificamos en el primer espacio de la fila 1, sea igual al de la fila 2
     beq $t2, $t5, diag1Match
-    	
+   
     j checkDiag2
 
 diag1Match:
@@ -257,26 +328,26 @@ diag1Match:
 
 checkDiag2:
     la $t8, pointersArray
-    
+   
     lw $t2, 0($t8)
     addi $t2, $t2, 8
     lw $t2, 0($t2)
     beq $t2, $zero, checkDraw
-    
+   
     lw $t5, 4($t8)
     addi $t5, $t5, 4
     lw $t5, 0($t5)
     beq $t5, $zero, checkDraw
-    
+   
     lw $t7, 8($t8)
     lw $t7, 0($t7)
     beq $t7, $zero, checkDraw
-    
+   
     move $t0, $t2
-    
+   
     #Verificamos en el primer espacio de la fila 1, sea igual al de la fila 2
     beq $t2, $t5, diag2Match
-    	
+   
     j checkDraw
 
 diag2Match:
@@ -285,7 +356,7 @@ diag2Match:
 checkDraw:
     li $a1, 9
     bne $a3, $a1, turnLoop
-    
+   
     # Lógica para empate
     li $v0, 4
     la $a0, draw
@@ -298,7 +369,7 @@ winCondition:
     la $a0, player1Wins
     syscall
     j endGame
-    
+   
     winPlayer2:
     li $v0, 4
     la $a0, player2Wins
@@ -307,4 +378,4 @@ winCondition:
 
 endGame:
     li $v0, 10
-    syscall
+    syscal
