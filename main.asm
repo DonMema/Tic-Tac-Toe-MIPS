@@ -1,5 +1,3 @@
-
-
 .data
 firstRow: .word 0, 0, 0
 secondRow: .word 0, 0, 0
